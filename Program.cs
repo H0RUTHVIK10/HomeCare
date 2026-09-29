@@ -1,4 +1,10 @@
+using HomeCare.Data;
+using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddDbContext<HomeCareDbContext>(options =>
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("HomeCareConnection")));
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
