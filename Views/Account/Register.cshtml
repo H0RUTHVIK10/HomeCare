@@ -1,0 +1,81 @@
+@model HomeCare.ViewModels.RegisterViewModel
+@{
+    ViewData["Title"] = "Create Account";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card-modern shadow border-0 p-4 rounded-4">
+                <div class="text-center mb-4">
+                    <div class="bg-primary text-white d-inline-flex p-3 rounded-circle mb-2 shadow-sm">
+                        <i class="bi bi-person-plus-fill fs-3"></i>
+                    </div>
+                    <h4 class="fw-bold">Create HomeCare Account</h4>
+                    <p class="text-muted small">Start tracking appliances, warranties, and maintenance</p>
+                </div>
+
+                <form asp-controller="Account" asp-action="Register" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Name" class="form-label small fw-semibold text-muted">Full Name</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-person text-muted"></i></span>
+                            <input asp-for="Name" class="form-control" placeholder="e.g. John Doe" autofocus />
+                        </div>
+                        <span asp-validation-for="Name" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label small fw-semibold text-muted">Email Address</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-envelope text-muted"></i></span>
+                            <input asp-for="Email" class="form-control" placeholder="name@example.com" autocomplete="username" />
+                        </div>
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="PrimaryHomeName" class="form-label small fw-semibold text-muted">Initial Home / Property Name</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-house text-muted"></i></span>
+                            <input asp-for="PrimaryHomeName" class="form-control" placeholder="e.g. My Residence, Family Home" />
+                        </div>
+                        <span asp-validation-for="PrimaryHomeName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-sm-6">
+                            <label asp-for="Password" class="form-label small fw-semibold text-muted">Password</label>
+                            <input asp-for="Password" class="form-control" placeholder="Min. 6 chars" autocomplete="new-password" />
+                            <span asp-validation-for="Password" class="text-danger small"></span>
+                        </div>
+                        <div class="col-sm-6">
+                            <label asp-for="ConfirmPassword" class="form-label small fw-semibold text-muted">Confirm Password</label>
+                            <input asp-for="ConfirmPassword" class="form-control" placeholder="Repeat password" autocomplete="new-password" />
+                            <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold rounded-3 shadow-sm mt-2">
+                        <i class="bi bi-check2-circle me-1"></i> Create Account
+                    </button>
+                </form>
+
+                <div class="text-center mt-4 pt-3 border-top">
+                    <span class="text-muted small">Already have an account? </span>
+                    <a asp-controller="Account" asp-action="Login" class="text-primary small fw-semibold text-decoration-none">
+                        Sign In &rarr;
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

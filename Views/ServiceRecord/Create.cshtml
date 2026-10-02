@@ -1,0 +1,106 @@
+@model HomeCare.ViewModels.ServiceRecordFormViewModel
+@{
+    ViewData["Title"] = $"Log Service - {Model.ApplianceName}";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold mb-0 text-dark">Log Service &amp; Maintenance Record</h3>
+            <p class="text-muted small mb-0">For <strong>@Model.ApplianceName</strong> (@Model.ApplianceBrand)</p>
+        </div>
+        <a asp-controller="Appliance" asp-action="Details" asp-route-id="@Model.ApplianceId" asp-route-tab="services" class="btn btn-outline-secondary btn-sm px-3">
+            <i class="bi bi-arrow-left me-1"></i> Back to Appliance
+        </a>
+    </div>
+
+    <div class="card-modern p-4" style="max-width: 750px;">
+        <form asp-action="Create" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="ApplianceId" />
+            <input type="hidden" asp-for="ApplianceName" />
+            <input type="hidden" asp-for="ApplianceBrand" />
+
+            <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="ServiceDate" class="form-label small fw-semibold text-muted">Service Date *</label>
+                    <input asp-for="ServiceDate" class="form-control" />
+                    <span asp-validation-for="ServiceDate" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="ServiceType" class="form-label small fw-semibold text-muted">Service Type *</label>
+                    <select asp-for="ServiceType" class="form-select">
+                        <option value="Routine Maintenance">Routine Maintenance</option>
+                        <option value="Repair / Breakdown">Repair / Breakdown</option>
+                        <option value="Filter Replacement">Filter Replacement</option>
+                        <option value="General Inspection">General Inspection</option>
+                        <option value="Deep Cleaning">Deep Cleaning</option>
+                        <option value="Installation / Setup">Installation / Setup</option>
+                        <option value="Gas Refill / Recharge">Gas Refill / Recharge</option>
+                        <option value="Other">Other Service</option>
+                    </select>
+                    <span asp-validation-for="ServiceType" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="TechnicianName" class="form-label small fw-semibold text-muted">Technician Name</label>
+                    <input asp-for="TechnicianName" class="form-control" placeholder="e.g. Ramesh Kumar" />
+                    <span asp-validation-for="TechnicianName" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="ServiceProvider" class="form-label small fw-semibold text-muted">Service Center / Agency</label>
+                    <input asp-for="ServiceProvider" class="form-control" placeholder="e.g. Brand Authorized Care, Urban Company" />
+                    <span asp-validation-for="ServiceProvider" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-4">
+                    <label asp-for="Cost" class="form-label small fw-semibold text-muted">Cost Incurred (₹)</label>
+                    <input asp-for="Cost" class="form-control" placeholder="0.00" />
+                    <span asp-validation-for="Cost" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-4">
+                    <label asp-for="ServiceStatus" class="form-label small fw-semibold text-muted">Execution Status</label>
+                    <select asp-for="ServiceStatus" class="form-select">
+                        <option value="Completed">Completed</option>
+                        <option value="Scheduled">Scheduled (Upcoming)</option>
+                        <option value="In Progress">In Progress</option>
+                    </select>
+                </div>
+
+                <div class="col-md-4">
+                    <label asp-for="NextServiceDate" class="form-label small fw-semibold text-muted">Next Recommended Service</label>
+                    <input asp-for="NextServiceDate" class="form-control" />
+                    <span asp-validation-for="NextServiceDate" class="text-danger small"></span>
+                </div>
+
+                <div class="col-12">
+                    <label asp-for="Description" class="form-label small fw-semibold text-muted">Work Performed Description</label>
+                    <textarea asp-for="Description" class="form-control" rows="2" placeholder="Summary of components inspected, parts replaced, or diagnostic steps taken..."></textarea>
+                    <span asp-validation-for="Description" class="text-danger small"></span>
+                </div>
+
+                <div class="col-12">
+                    <label asp-for="Notes" class="form-label small fw-semibold text-muted">Technician Advice / Recommendations</label>
+                    <textarea asp-for="Notes" class="form-control" rows="2" placeholder="Suggestions, next inspection advice, or warning notes..."></textarea>
+                    <span asp-validation-for="Notes" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="mt-4 pt-3 border-top d-flex gap-2">
+                <button type="submit" class="btn btn-primary px-4">
+                    <i class="bi bi-check-lg me-1"></i> Save Service Record
+                </button>
+                <a asp-controller="Appliance" asp-action="Details" asp-route-id="@Model.ApplianceId" asp-route-tab="services" class="btn btn-outline-secondary px-3">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,8 +1,242 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@{
+    ViewData["Title"] = "Smart Home Maintenance Tracker";
+    bool isLoggedIn = User.Identity?.IsAuthenticated == true;
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<!-- Hero Section -->
+<section class="hero-section text-center text-lg-start">
+    <div class="container py-4">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-7">
+                <span class="badge bg-primary px-3 py-2 rounded-pill text-uppercase fw-semibold mb-3">
+                    <i class="bi bi-stars me-1"></i> Smart Household Appliance Intelligence
+                </span>
+                <h1 class="display-4 fw-bold lh-sm text-white mb-3">
+                    Never Miss an Appliance Service Again.
+                </h1>
+                <p class="lead text-light opacity-75 mb-4" style="font-size: 1.25rem;">
+                    HomeCare keeps your appliances, warranties, service records, documents, and maintenance reminders organized in one place across all your homes.
+                </p>
+                <div class="d-flex flex-wrap gap-3 justify-content-center justify-content-lg-start">
+                    @if (isLoggedIn)
+                    {
+                        <a asp-controller="Dashboard" asp-action="Index" class="btn btn-primary btn-lg px-4 py-3 fw-bold shadow-lg rounded-3">
+                            <i class="bi bi-speedometer2 me-2"></i>Go to Dashboard
+                        </a>
+                        <a asp-controller="Appliance" asp-action="Create" class="btn btn-outline-light btn-lg px-4 py-3 fw-semibold rounded-3">
+                            <i class="bi bi-plus-lg me-2"></i>Add Appliance
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-controller="Account" asp-action="Register" class="btn btn-primary btn-lg px-4 py-3 fw-bold shadow-lg rounded-3">
+                            <i class="bi bi-rocket-takeoff me-2"></i>Get Started Free
+                        </a>
+                        <a asp-controller="Account" asp-action="Login" class="btn btn-outline-light btn-lg px-4 py-3 fw-semibold rounded-3">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+                        </a>
+                    }
+                </div>
+                <div class="d-flex align-items-center gap-4 mt-4 pt-2 text-light opacity-75 small">
+                    <div><i class="bi bi-check2-circle text-success me-1"></i> Multi-Home Support</div>
+                    <div><i class="bi bi-check2-circle text-success me-1"></i> QR Code Tagging</div>
+                    <div><i class="bi bi-check2-circle text-success me-1"></i> Health Scores</div>
+                </div>
+            </div>
+            <div class="col-lg-5">
+                <div class="card-modern shadow-lg border-0 p-4 bg-white text-dark rounded-4">
+                    <div class="d-flex align-items-center justify-content-between pb-3 border-bottom mb-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="bg-primary text-white p-2 rounded-3">
+                                <i class="bi bi-cpu-fill fs-5"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0 fw-bold">LG Dual Inverter AC</h6>
+                                <small class="text-muted">Living Room &bull; Primary Residence</small>
+                            </div>
+                        </div>
+                        <span class="badge bg-success">Active Warranty</span>
+                    </div>
+
+                    <div class="row g-2 text-center mb-3">
+                        <div class="col-4">
+                            <div class="p-2 bg-light rounded-3">
+                                <small class="text-muted d-block" style="font-size: 0.7rem;">HEALTH SCORE</small>
+                                <span class="fw-bold text-success fs-5">92/100</span>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="p-2 bg-light rounded-3">
+                                <small class="text-muted d-block" style="font-size: 0.7rem;">WARRANTY</small>
+                                <span class="fw-bold text-primary fs-5">245d left</span>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="p-2 bg-light rounded-3">
+                                <small class="text-muted d-block" style="font-size: 0.7rem;">NEXT SERVICE</small>
+                                <span class="fw-bold text-dark fs-5">18d</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-3 bg-light rounded-3 mb-3 text-start small">
+                        <div class="d-flex align-items-center gap-2 text-primary fw-semibold mb-1">
+                            <i class="bi bi-lightbulb-fill"></i> Smart Insight
+                        </div>
+                        <div class="text-secondary">Routine filter cleaning due in 18 days. Keep invoice and warranty documents safely synced.</div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <span class="badge bg-light text-dark border p-2 flex-grow-1 text-center"><i class="bi bi-qr-code me-1"></i> QR Scannable</span>
+                        <span class="badge bg-light text-dark border p-2 flex-grow-1 text-center"><i class="bi bi-receipt me-1"></i> Invoices Backed Up</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Why HomeCare Section -->
+<section class="py-5" id="features">
+    <div class="container py-4">
+        <div class="text-center max-w-700 mx-auto mb-5">
+            <h6 class="text-primary text-uppercase fw-bold letter-spacing-1">Why HomeCare?</h6>
+            <h2 class="fw-bold text-dark">The Centralized Household Maintenance Hub</h2>
+            <p class="text-muted">Avoid forgotten warranties, unorganized receipts, unexpected breakdowns, and costly repairs.</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-box">
+                    <div class="bg-primary text-white p-3 rounded-3 d-inline-block mb-3">
+                        <i class="bi bi-shield-check fs-3"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">Automated Warranty Alerts</h5>
+                    <p class="text-muted small">
+                        Receive timely notices 30, 15, and 7 days before coverage expires. Keep warranty numbers and support hotlines right at your fingertips.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="feature-box">
+                    <div class="bg-success text-white p-3 rounded-3 d-inline-block mb-3">
+                        <i class="bi bi-activity fs-3"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">Appliance Health Indicator</h5>
+                    <p class="text-muted small">
+                        Deterministic 0–100 scoring based on appliance age, repair frequencies, service regularity, and active coverage so you know what needs attention.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="feature-box">
+                    <div class="bg-info text-white p-3 rounded-3 d-inline-block mb-3">
+                        <i class="bi bi-qr-code fs-3"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">Instant QR Code Tagging</h5>
+                    <p class="text-muted small">
+                        Print QR code stickers for your physical appliances. Anyone in your household can scan the code to view manuals, history, and service dates.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="feature-box">
+                    <div class="bg-warning text-dark p-3 rounded-3 d-inline-block mb-3">
+                        <i class="bi bi-buildings fs-3"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">Multi-Home Management</h5>
+                    <p class="text-muted small">
+                        Easily switch between your primary house, parents' residence, vacation home, and rental units with dedicated tracking and dashboards.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="feature-box">
+                    <div class="bg-secondary text-white p-3 rounded-3 d-inline-block mb-3">
+                        <i class="bi bi-file-earmark-lock2 fs-3"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">Secure Document Vault</h5>
+                    <p class="text-muted small">
+                        Upload invoices, user manuals, and warranty receipts in PDF or images with file validation, MIME verification, and path-traversal safeguards.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="feature-box">
+                    <div class="bg-danger text-white p-3 rounded-3 d-inline-block mb-3">
+                        <i class="bi bi-bar-chart-line fs-3"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">Cost & Maintenance Analytics</h5>
+                    <p class="text-muted small">
+                        Monitor yearly maintenance expenses, average costs per repair, category allocations, and lifecycle age trends with interactive charts.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works -->
+<section class="py-5 bg-white border-top border-bottom" id="how-it-works">
+    <div class="container py-4">
+        <div class="text-center mb-5">
+            <h6 class="text-primary text-uppercase fw-bold">Simple Workflow</h6>
+            <h2 class="fw-bold text-dark">How HomeCare Works in 3 Steps</h2>
+        </div>
+
+        <div class="row g-4 text-center">
+            <div class="col-md-4">
+                <div class="p-4">
+                    <div class="bg-light border rounded-circle d-inline-flex align-items-center justify-content-center text-primary fs-2 fw-bold mb-3" style="width: 70px; height: 70px;">
+                        1
+                    </div>
+                    <h5 class="fw-bold">Register Your Home & Appliances</h5>
+                    <p class="text-muted small">Add your household appliances, brands, purchase dates, serial numbers, and upload photos.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-4">
+                    <div class="bg-light border rounded-circle d-inline-flex align-items-center justify-content-center text-primary fs-2 fw-bold mb-3" style="width: 70px; height: 70px;">
+                        2
+                    </div>
+                    <h5 class="fw-bold">Track Warranties & Invoices</h5>
+                    <p class="text-muted small">Store warranty end dates, policy numbers, and upload PDF receipts so you never misplace physical papers.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-4">
+                    <div class="bg-light border rounded-circle d-inline-flex align-items-center justify-content-center text-primary fs-2 fw-bold mb-3" style="width: 70px; height: 70px;">
+                        3
+                    </div>
+                    <h5 class="fw-bold">Stay Ahead with Smart Alerts</h5>
+                    <p class="text-muted small">Get automated reminders for filter changes, scheduled inspections, and track historical maintenance spending.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action Banner -->
+<section class="py-5 text-center bg-primary text-white">
+    <div class="container py-4">
+        <h2 class="fw-bold mb-3">Ready to Organize Your Household Maintenance?</h2>
+        <p class="lead opacity-75 mb-4">Start managing your appliances, warranties, and maintenance records in one secure system.</p>
+        @if (isLoggedIn)
+        {
+            <a asp-controller="Dashboard" asp-action="Index" class="btn btn-light btn-lg px-4 py-2 fw-bold shadow">
+                Open Your Dashboard &rarr;
+            </a>
+        }
+        else
+        {
+            <a asp-controller="Account" asp-action="Register" class="btn btn-light btn-lg px-4 py-2 fw-bold shadow">
+                Create Free Account
+            </a>
+        }
+    </div>
+</section>

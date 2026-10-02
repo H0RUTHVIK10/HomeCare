@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace HomeCare.Models
 {
@@ -18,9 +18,19 @@ namespace HomeCare.Models
         [Required]
         public string PasswordHash { get; set; } = string.Empty;
 
+        [StringLength(50)]
+        public string Role { get; set; } = "User";
+
+        [StringLength(20)]
+        public string? PhoneNumber { get; set; }
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        // Relationship
+        // Relationships
         public ICollection<Home> Homes { get; set; } = new List<Home>();
+
+        public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
+
+        public ICollection<Reminder> Reminders { get; set; } = new List<Reminder>();
     }
 }

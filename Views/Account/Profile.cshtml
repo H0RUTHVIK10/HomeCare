@@ -1,0 +1,113 @@
+@model HomeCare.ViewModels.ProfileViewModel
+@{
+    ViewData["Title"] = "User Profile & Security";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold mb-0 text-dark">Profile & Account Settings</h3>
+            <p class="text-muted small mb-0">Manage your user details and password</p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Profile Overview Card -->
+        <div class="col-lg-4">
+            <div class="card-modern text-center p-4">
+                <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center shadow mb-3" style="width: 80px; height: 80px; font-size: 2rem; font-weight: 700;">
+                    @((Model.Name.Length > 0 ? Model.Name.Substring(0, 1).ToUpper() : "U"))
+                </div>
+                <h5 class="fw-bold mb-1">@Model.Name</h5>
+                <p class="text-muted small mb-3">@Model.Email</p>
+
+                <div class="border-top pt-3 text-start small">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Member Since:</span>
+                        <span class="fw-semibold">@Model.MemberSince.ToString("MMM dd, yyyy")</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Total Properties:</span>
+                        <span class="badge bg-primary">@Model.TotalHomes</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">Total Appliances:</span>
+                        <span class="badge bg-info text-dark">@Model.TotalAppliances</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Profile & Change Password -->
+        <div class="col-lg-8">
+            <div class="card-modern mb-4">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0 fw-bold"><i class="bi bi-person me-2 text-primary"></i>Personal Information</h6>
+                </div>
+                <div class="card-body">
+                    <form asp-controller="Account" asp-action="Profile" method="post">
+                        @Html.AntiForgeryToken()
+                        <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="Name" class="form-label small fw-semibold text-muted">Full Name</label>
+                                <input asp-for="Name" class="form-control" />
+                                <span asp-validation-for="Name" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold text-muted">Email Address</label>
+                                <input type="text" class="form-control bg-light" value="@Model.Email" readonly disabled />
+                                <small class="text-muted">Email is used for sign-in and cannot be changed.</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="PhoneNumber" class="form-label small fw-semibold text-muted">Phone Number</label>
+                                <input asp-for="PhoneNumber" class="form-control" placeholder="+1 (555) 000-0000" />
+                                <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-sm px-4">
+                            <i class="bi bi-save me-1"></i> Save Changes
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Change Password Card -->
+            <div class="card-modern">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0 fw-bold"><i class="bi bi-lock me-2 text-primary"></i>Change Password</h6>
+                </div>
+                <div class="card-body">
+                    <form asp-controller="Account" asp-action="ChangePassword" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label small fw-semibold text-muted">Current Password</label>
+                                <input type="password" name="CurrentPassword" class="form-control" required autocomplete="current-password" />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small fw-semibold text-muted">New Password</label>
+                                <input type="password" name="NewPassword" class="form-control" required minlength="6" autocomplete="new-password" />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small fw-semibold text-muted">Confirm New Password</label>
+                                <input type="password" name="ConfirmPassword" class="form-control" required minlength="6" autocomplete="new-password" />
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-outline-primary btn-sm px-4">
+                            <i class="bi bi-key me-1"></i> Update Password
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

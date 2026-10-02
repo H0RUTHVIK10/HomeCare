@@ -1,0 +1,67 @@
+@model HomeCare.ViewModels.LoginViewModel
+@{
+    ViewData["Title"] = "Sign In";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5 col-lg-4">
+            <div class="card-modern shadow border-0 p-4 rounded-4">
+                <div class="text-center mb-4">
+                    <div class="bg-primary text-white d-inline-flex p-3 rounded-circle mb-2 shadow-sm">
+                        <i class="bi bi-person-fill fs-3"></i>
+                    </div>
+                    <h4 class="fw-bold">Welcome Back</h4>
+                    <p class="text-muted small">Sign in to your HomeCare account</p>
+                </div>
+
+                <form asp-controller="Account" asp-action="Login" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="ReturnUrl" />
+
+                    <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label small fw-semibold text-muted">Email Address</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-envelope text-muted"></i></span>
+                            <input asp-for="Email" class="form-control" placeholder="name@example.com" autofocus autocomplete="username" />
+                        </div>
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label small fw-semibold text-muted">Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-lock text-muted"></i></span>
+                            <input asp-for="Password" class="form-control" placeholder="Enter password" autocomplete="current-password" />
+                        </div>
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    </div>
+
+                    <div class="form-check mb-4">
+                        <input class="form-check-input" type="checkbox" asp-for="RememberMe" id="rememberMeCheck">
+                        <label class="form-check-label small text-muted" for="rememberMeCheck">
+                            Keep me signed in
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold rounded-3 shadow-sm">
+                        <i class="bi bi-box-arrow-in-right me-1"></i> Sign In
+                    </button>
+                </form>
+
+                <div class="text-center mt-4 pt-3 border-top">
+                    <span class="text-muted small">Don't have an account? </span>
+                    <a asp-controller="Account" asp-action="Register" class="text-primary small fw-semibold text-decoration-none">
+                        Register Now &rarr;
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

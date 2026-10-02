@@ -1,0 +1,128 @@
+@model HomeCare.ViewModels.ApplianceFormViewModel
+@{
+    ViewData["Title"] = "Add New Appliance";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold mb-0 text-dark">Register Household Appliance</h3>
+            <p class="text-muted small mb-0">Record hardware details, warranty baseline, and location</p>
+        </div>
+        <a asp-action="Index" class="btn btn-outline-secondary btn-sm px-3">
+            <i class="bi bi-arrow-left me-1"></i> Back to List
+        </a>
+    </div>
+
+    <div class="card-modern p-4">
+        <form asp-action="Create" method="post" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+
+            <div class="row g-3">
+                <!-- Section 1: Basic Identity -->
+                <div class="col-12">
+                    <h6 class="fw-bold text-primary mb-2"><i class="bi bi-tag me-2"></i>Identification</h6>
+                    <hr class="mt-0 mb-3" />
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="Name" class="form-label small fw-semibold text-muted">Appliance Name *</label>
+                    <input asp-for="Name" class="form-control" placeholder="e.g. LG French Door Refrigerator" autofocus />
+                    <span asp-validation-for="Name" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="Brand" class="form-label small fw-semibold text-muted">Brand / Manufacturer *</label>
+                    <input asp-for="Brand" class="form-control" placeholder="e.g. LG, Samsung, Whirlpool, Bosch" />
+                    <span asp-validation-for="Brand" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="CategoryId" class="form-label small fw-semibold text-muted">Category *</label>
+                    <select asp-for="CategoryId" class="form-select" asp-items="Model.CategoriesList">
+                        <option value="">-- Select Category --</option>
+                    </select>
+                    <span asp-validation-for="CategoryId" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="HomeId" class="form-label small fw-semibold text-muted">Belongs to Home / Property *</label>
+                    <select asp-for="HomeId" class="form-select" asp-items="Model.HomesList">
+                        <option value="">-- Select Property --</option>
+                    </select>
+                    <span asp-validation-for="HomeId" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="ModelNumber" class="form-label small fw-semibold text-muted">Model Number</label>
+                    <input asp-for="ModelNumber" class="form-control" placeholder="e.g. GL-T292RPZY" />
+                    <span asp-validation-for="ModelNumber" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="SerialNumber" class="form-label small fw-semibold text-muted">Serial Number</label>
+                    <input asp-for="SerialNumber" class="form-control" placeholder="Found on hardware sticker / bar code" />
+                    <span asp-validation-for="SerialNumber" class="text-danger small"></span>
+                </div>
+
+                <!-- Section 2: Purchase & Location -->
+                <div class="col-12 mt-4">
+                    <h6 class="fw-bold text-primary mb-2"><i class="bi bi-geo-alt me-2"></i>Location &amp; Purchase Data</h6>
+                    <hr class="mt-0 mb-3" />
+                </div>
+
+                <div class="col-md-4">
+                    <label asp-for="Location" class="form-label small fw-semibold text-muted">Location / Room</label>
+                    <input asp-for="Location" class="form-control" placeholder="e.g. Kitchen, Utility, Master Bedroom" />
+                    <span asp-validation-for="Location" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-4">
+                    <label asp-for="PurchaseDate" class="form-label small fw-semibold text-muted">Purchase Date</label>
+                    <input asp-for="PurchaseDate" class="form-control" />
+                    <span asp-validation-for="PurchaseDate" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-4">
+                    <label asp-for="PurchasePrice" class="form-label small fw-semibold text-muted">Purchase Price (₹)</label>
+                    <input asp-for="PurchasePrice" class="form-control" placeholder="0.00" />
+                    <span asp-validation-for="PurchasePrice" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="Status" class="form-label small fw-semibold text-muted">Operational Status</label>
+                    <select asp-for="Status" class="form-select">
+                        <option value="Active">Active (In regular use)</option>
+                        <option value="Under Repair">Under Repair</option>
+                        <option value="Retired">Retired / Inactive</option>
+                        <option value="Sold">Sold / Disposed</option>
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="ImageFile" class="form-label small fw-semibold text-muted">Appliance Photo (Optional)</label>
+                    <input asp-for="ImageFile" class="form-control" accept=".jpg,.jpeg,.png,.webp" />
+                    <small class="text-muted" style="font-size: 0.72rem;">JPG, PNG up to 10MB</small>
+                </div>
+
+                <div class="col-12">
+                    <label asp-for="Notes" class="form-label small fw-semibold text-muted">Notes / Maintenance Remarks</label>
+                    <textarea asp-for="Notes" class="form-control" rows="3" placeholder="Additional specifications, dealer contacts, or warranty registration notes..."></textarea>
+                    <span asp-validation-for="Notes" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="mt-4 pt-3 border-top d-flex gap-2">
+                <button type="submit" class="btn btn-primary px-4">
+                    <i class="bi bi-check-lg me-1"></i> Save Appliance
+                </button>
+                <a asp-action="Index" class="btn btn-outline-secondary px-3">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

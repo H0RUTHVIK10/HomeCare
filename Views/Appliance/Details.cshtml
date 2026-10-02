@@ -1,0 +1,719 @@
+@model HomeCare.ViewModels.ApplianceDetailsViewModel
+@{
+    ViewData["Title"] = $"{Model.Appliance.Name} - Profile";
+    var app = Model.Appliance;
+    var now = DateTime.UtcNow;
+}
+
+<div class="container-fluid">
+    <!-- Header Banner -->
+    <div class="card-modern p-4 mb-4 bg-white border">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div class="d-flex align-items-center gap-3">
+                @if (!string.IsNullOrWhiteSpace(app.ImagePath))
+                {
+                    <img src="@app.ImagePath" alt="@app.Name" class="rounded-4 border shadow-sm object-fit-cover" style="width: 72px; height: 72px;" />
+                }
+                else
+                {
+                    <div class="bg-primary bg-opacity-10 text-primary rounded-4 border d-flex align-items-center justify-content-center shadow-sm" style="width: 72px; height: 72px;">
+                        <i class="bi @(app.Category?.Icon ?? "bi-cpu") fs-2"></i>
+                    </div>
+                }
+                <div>
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <h3 class="fw-bold mb-0 text-dark">@app.Name</h3>
+                        <span class="badge @(app.Status == "Active" ? "bg-success" : (app.Status == "Under Repair" ? "bg-warning text-dark" : "bg-secondary"))">
+                            @app.Status
+                        </span>
+                        <span class="badge @Model.WarrantyBadgeClass">@Model.WarrantyStatus</span>
+                    </div>
+                    <div class="text-muted small">
+                        <strong>@app.Brand</strong> &bull; Model: @(string.IsNullOrWhiteSpace(app.ModelNumber) ? "N/A" : app.ModelNumber) &bull; Property: <strong>@app.Home.Name</strong>
+                        @if (!string.IsNullOrWhiteSpace(app.Location))
+                        {
+                            <span> &bull; Room: @app.Location</span>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex align-items-center gap-2">
+                <!-- Health Score Indicator -->
+                <div class="d-flex align-items-center gap-2 p-2 px-3 bg-light rounded-3 border">
+                    <div class="text-center">
+                        <span class="fw-bold fs-5 @Model.HealthScore.TextColorClass">@Model.HealthScore.Score%</span>
+                        <small class="d-block text-muted" style="font-size: 0.65rem;">HEALTH</small>
+                    </div>
+                    <span class="badge @Model.HealthScore.BadgeClass small">@Model.HealthScore.Rating</span>
+                </div>
+
+                <!-- QR Code Button -->
+                <button type="button" class="btn btn-outline-dark btn-sm rounded-3 px-3" data-bs-toggle="modal" data-bs-target="#qrCodeModal">
+                    <i class="bi bi-qr-code me-1"></i> QR Tag
+                </button>
+
+                <!-- Edit Button -->
+                <a asp-action="Edit" asp-route-id="@app.Id" class="btn btn-outline-secondary btn-sm rounded-3 px-3">
+                    <i class="bi bi-pencil me-1"></i> Edit
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Tabs (Requirements 11, 12, 13, 15, 18, 21, 25) -->
+    <ul class="nav nav-pills mb-4 bg-white p-2 rounded-3 border shadow-sm" id="applianceTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link @(Model.ActiveTab == "overview" ? "active" : "")" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button" role="tab">
+                <i class="bi bi-info-circle me-1"></i> Overview
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link @(Model.ActiveTab == "warranty" ? "active" : "")" id="warranty-tab" data-bs-toggle="tab" data-bs-target="#warranty" type="button" role="tab">
+                <i class="bi bi-shield-check me-1"></i> Warranty &amp; Coverage
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link @(Model.ActiveTab == "services" ? "active" : "")" id="services-tab" data-bs-toggle="tab" data-bs-target="#services" type="button" role="tab">
+                <i class="bi bi-wrench-adjustable me-1"></i> Service History &amp; Timeline
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link @(Model.ActiveTab == "documents" ? "active" : "")" id="documents-tab" data-bs-toggle="tab" data-bs-target="#documents" type="button" role="tab">
+                <i class="bi bi-file-earmark-text me-1"></i> Documents &amp; Invoices
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link @(Model.ActiveTab == "reminders" ? "active" : "")" id="reminders-tab" data-bs-toggle="tab" data-bs-target="#reminders" type="button" role="tab">
+                <i class="bi bi-alarm me-1"></i> Reminders
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link @(Model.ActiveTab == "analytics" ? "active" : "")" id="analytics-tab" data-bs-toggle="tab" data-bs-target="#analytics" type="button" role="tab">
+                <i class="bi bi-graph-up me-1"></i> Cost Analytics
+            </button>
+        </li>
+    </ul>
+
+    <!-- Tab Contents -->
+    <div class="tab-content" id="applianceTabsContent">
+        <!-- 1. OVERVIEW TAB -->
+        <div class="tab-pane fade @(Model.ActiveTab == "overview" ? "show active" : "")" id="overview" role="tabpanel">
+            <div class="row g-4">
+                <div class="col-lg-6">
+                    <div class="card-modern h-100">
+                        <div class="card-header bg-white">
+                            <h6 class="mb-0 fw-bold"><i class="bi bi-card-checklist me-2 text-primary"></i>Specification Details</h6>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-sm table-borderless mb-0">
+                                <tbody>
+                                    <tr>
+                                        <td class="text-muted" style="width: 35%;">Category</td>
+                                        <td class="fw-semibold">
+                                            <i class="bi @(app.Category?.Icon ?? "bi-tag") me-1 text-primary"></i>@(app.Category?.Name ?? "General")
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted">Brand</td>
+                                        <td class="fw-semibold">@app.Brand</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted">Model Number</td>
+                                        <td>@(string.IsNullOrWhiteSpace(app.ModelNumber) ? "Not Specified" : app.ModelNumber)</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted">Serial Number</td>
+                                        <td><code>@(string.IsNullOrWhiteSpace(app.SerialNumber) ? "N/A" : app.SerialNumber)</code></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted">Purchase Date</td>
+                                        <td>@(app.PurchaseDate.HasValue ? app.PurchaseDate.Value.ToString("MMM dd, yyyy") : "Unknown")</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted">Purchase Price</td>
+                                        <td class="fw-semibold">@(app.PurchasePrice.HasValue ? $"₹{app.PurchasePrice:N2}" : "Not recorded")</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted">Property / Home</td>
+                                        <td>@app.Home.Name</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted">Location / Room</td>
+                                        <td>@(string.IsNullOrWhiteSpace(app.Location) ? "Main Room" : app.Location)</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted">Date Added</td>
+                                        <td>@app.CreatedAt.ToString("MMM dd, yyyy")</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            @if (!string.IsNullOrWhiteSpace(app.Notes))
+                            {
+                                <div class="mt-4 pt-3 border-top">
+                                    <h6 class="fw-bold small text-muted text-uppercase">Notes &amp; Observations</h6>
+                                    <p class="small text-secondary bg-light p-3 rounded-3 mb-0">@app.Notes</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Health Indicator Factors Breakdown -->
+                <div class="col-lg-6">
+                    <div class="card-modern h-100">
+                        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0 fw-bold"><i class="bi bi-heart-pulse-fill me-2 text-danger"></i>Health Score Diagnostics</h6>
+                            <span class="badge @Model.HealthScore.BadgeClass">@Model.HealthScore.Rating</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex align-items-center gap-3 mb-3 p-3 bg-light rounded-3">
+                                <div class="health-gauge-circle @Model.HealthScore.TextColorClass" style="width: 60px; height: 60px; font-size: 1.25rem;">
+                                    @Model.HealthScore.Score
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold mb-0">Condition: @Model.HealthScore.Rating</h6>
+                                    <small class="text-muted">@Model.HealthScore.Disclaimer</small>
+                                </div>
+                            </div>
+
+                            <h6 class="small fw-bold text-muted text-uppercase mb-2">Scoring Factors</h6>
+                            <div class="list-group list-group-flush mb-3">
+                                @foreach (var factor in Model.HealthScore.Factors)
+                                {
+                                    <div class="list-group-item d-flex justify-content-between align-items-center py-2 px-0 border-0 border-bottom">
+                                        <div>
+                                            <span class="fw-semibold small text-dark d-block">@factor.Title</span>
+                                            <small class="text-muted">@factor.Description</small>
+                                        </div>
+                                        <span class="badge @(factor.Impact >= 0 ? "bg-success" : "bg-danger")">
+                                            @(factor.Impact > 0 ? $"+{factor.Impact}" : factor.Impact.ToString()) pts
+                                        </span>
+                                    </div>
+                                }
+                            </div>
+
+                            @if (Model.HealthScore.Insights.Count > 0)
+                            {
+                                <h6 class="small fw-bold text-muted text-uppercase mb-2">Prescriptive Insights</h6>
+                                <div class="p-3 bg-light rounded-3 small">
+                                    <ul class="mb-0 ps-3">
+                                        @foreach (var ins in Model.HealthScore.Insights)
+                                        {
+                                            <li class="mb-1 text-secondary">@ins</li>
+                                        }
+                                    </ul>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. WARRANTY TAB (Requirements 13 & 14) -->
+        <div class="tab-pane fade @(Model.ActiveTab == "warranty" ? "show active" : "")" id="warranty" role="tabpanel">
+            <div class="card-modern">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 fw-bold"><i class="bi bi-shield-lock me-2 text-primary"></i>Warranty &amp; Guarantee Coverage</h6>
+                    @if (app.Warranty != null)
+                    {
+                        <div>
+                            <a asp-controller="Warranty" asp-action="Edit" asp-route-id="@app.Warranty.Id" class="btn btn-outline-secondary btn-sm">
+                                <i class="bi bi-pencil me-1"></i> Edit Warranty
+                            </a>
+                            <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal"
+                                    data-action="@Url.Action("Delete", "Warranty", new { id = app.Warranty.Id })"
+                                    data-item-name="Warranty for @app.Name"
+                                    data-item-type="Warranty">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    }
+                    else
+                    {
+                        <a asp-controller="Warranty" asp-action="Create" asp-route-applianceId="@app.Id" class="btn btn-primary btn-sm">
+                            <i class="bi bi-plus-lg me-1"></i> Register Warranty
+                        </a>
+                    }
+                </div>
+                <div class="card-body">
+                    @if (app.Warranty != null)
+                    {
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-4">
+                                <div class="p-3 bg-light rounded-3 text-center border">
+                                    <small class="text-muted d-block" style="font-size: 0.75rem;">CURRENT STATUS</small>
+                                    <span class="badge @Model.WarrantyBadgeClass fs-6 px-3 py-1 my-2">@Model.WarrantyStatus</span>
+                                    <div class="small fw-bold text-dark">@Model.WarrantyCountdownText</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="p-3 bg-light rounded-3 text-center border">
+                                    <small class="text-muted d-block" style="font-size: 0.75rem;">START DATE</small>
+                                    <div class="fs-5 fw-bold text-dark my-2">@app.Warranty.StartDate.ToString("MMM dd, yyyy")</div>
+                                    <small class="text-muted">Recorded activation</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="p-3 bg-light rounded-3 text-center border">
+                                    <small class="text-muted d-block" style="font-size: 0.75rem;">EXPIRY DATE</small>
+                                    <div class="fs-5 fw-bold text-dark my-2">@app.Warranty.EndDate.ToString("MMM dd, yyyy")</div>
+                                    <small class="text-muted">Coverage threshold</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="small text-muted fw-bold">Warranty Provider / Manufacturer</label>
+                                <p class="fw-semibold">@(string.IsNullOrWhiteSpace(app.Warranty.Provider) ? "Not specified" : app.Warranty.Provider)</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="small text-muted fw-bold">Policy / Warranty Number</label>
+                                <p class="fw-semibold"><code>@(string.IsNullOrWhiteSpace(app.Warranty.WarrantyNumber) ? "None" : app.Warranty.WarrantyNumber)</code></p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="small text-muted fw-bold">Support Hotline / Contact Number</label>
+                                <p class="fw-semibold">@(string.IsNullOrWhiteSpace(app.Warranty.ContactNumber) ? "None" : app.Warranty.ContactNumber)</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="small text-muted fw-bold">Coverage Scope</label>
+                                <p>@(string.IsNullOrWhiteSpace(app.Warranty.CoverageDetails) ? "Standard comprehensive manufacturer warranty." : app.Warranty.CoverageDetails)</p>
+                            </div>
+                            @if (!string.IsNullOrWhiteSpace(app.Warranty.Terms))
+                            {
+                                <div class="col-12">
+                                    <label class="small text-muted fw-bold">Terms, Exclusions &amp; Conditions</label>
+                                    <div class="bg-light p-3 rounded-3 small">@app.Warranty.Terms</div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="empty-state py-4">
+                            <i class="bi bi-shield-slash empty-state-icon"></i>
+                            <h6 class="empty-state-title">No Warranty Registered</h6>
+                            <p class="empty-state-desc small">Keep track of expiration alerts, policy numbers, and support contacts by logging warranty details.</p>
+                            <a asp-controller="Warranty" asp-action="Create" asp-route-applianceId="@app.Id" class="btn btn-primary btn-sm">
+                                <i class="bi bi-plus-lg me-1"></i> Register Warranty
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. SERVICE HISTORY TAB (Requirements 15 & 16: Service Timeline) -->
+        <div class="tab-pane fade @(Model.ActiveTab == "services" ? "show active" : "")" id="services" role="tabpanel">
+            <div class="row g-4">
+                <!-- Visual Timeline Column -->
+                <div class="col-lg-5">
+                    <div class="card-modern h-100">
+                        <div class="card-header bg-white">
+                            <h6 class="mb-0 fw-bold"><i class="bi bi-bezier2 me-2 text-primary"></i>Lifecycle &amp; Service Timeline</h6>
+                        </div>
+                        <div class="card-body">
+                            @if (Model.TimelineItems.Count > 0)
+                            {
+                                <div class="timeline">
+                                    @foreach (var t in Model.TimelineItems)
+                                    {
+                                        <div class="timeline-item">
+                                            <div class="timeline-dot @t.BadgeClass">
+                                                <i class="bi @t.IconClass text-white" style="font-size: 0.65rem;"></i>
+                                            </div>
+                                            <div class="timeline-content">
+                                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                                    <span class="badge @t.BadgeClass small" style="font-size: 0.7rem;">@t.Type</span>
+                                                    <small class="text-muted fw-semibold">@t.Date.ToString("MMM dd, yyyy")</small>
+                                                </div>
+                                                <h6 class="mb-1 fw-bold text-dark small">@t.Title</h6>
+                                                <p class="text-secondary small mb-1">@t.Description</p>
+                                                @if (t.Cost.HasValue && t.Cost.Value > 0)
+                                                {
+                                                    <span class="badge bg-light text-dark border">Cost: ₹@t.Cost.Value.ToString("N2")</span>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="empty-state py-4">
+                                    <i class="bi bi-clock-history empty-state-icon"></i>
+                                    <h6 class="empty-state-title">No Timeline Events</h6>
+                                    <p class="empty-state-desc small">Add service records to construct this appliance's lifecycle timeline.</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Service Records List & Management -->
+                <div class="col-lg-7">
+                    <div class="card-modern h-100">
+                        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0 fw-bold"><i class="bi bi-tools me-2 text-primary"></i>Service &amp; Maintenance Logs</h6>
+                            <a asp-controller="ServiceRecord" asp-action="Create" asp-route-applianceId="@app.Id" class="btn btn-primary btn-sm">
+                                <i class="bi bi-plus-lg me-1"></i> Log Service Record
+                            </a>
+                        </div>
+                        <div class="card-body p-0">
+                            @if (app.ServiceRecords.Count > 0)
+                            {
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle mb-0">
+                                        <thead class="table-light small text-uppercase">
+                                            <tr>
+                                                <th>Date &amp; Type</th>
+                                                <th>Technician / Center</th>
+                                                <th>Cost</th>
+                                                <th>Status</th>
+                                                <th class="text-end">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var sr in app.ServiceRecords.OrderByDescending(s => s.ServiceDate))
+                                            {
+                                                <tr>
+                                                    <td>
+                                                        <div class="fw-bold small text-dark">@sr.ServiceType</div>
+                                                        <small class="text-muted">@sr.ServiceDate.ToString("MMM dd, yyyy")</small>
+                                                    </td>
+                                                    <td class="small">
+                                                        <div>@(string.IsNullOrWhiteSpace(sr.TechnicianName) ? "Unspecified Tech" : sr.TechnicianName)</div>
+                                                        <small class="text-muted">@(string.IsNullOrWhiteSpace(sr.ServiceProvider) ? "" : sr.ServiceProvider)</small>
+                                                    </td>
+                                                    <td class="small fw-semibold">
+                                                        @(sr.Cost.HasValue ? $"₹{sr.Cost.Value:N2}" : "₹0")
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge @(sr.ServiceStatus == "Completed" ? "bg-success" : (sr.ServiceStatus == "Scheduled" ? "bg-info text-dark" : "bg-warning text-dark"))">
+                                                            @sr.ServiceStatus
+                                                        </span>
+                                                    </td>
+                                                    <td class="text-end">
+                                                        <div class="btn-group btn-group-sm">
+                                                            <a asp-controller="ServiceRecord" asp-action="Edit" asp-route-id="@sr.Id" class="btn btn-light" title="Edit">
+                                                                <i class="bi bi-pencil"></i>
+                                                            </a>
+                                                            <button type="button" class="btn btn-light text-danger" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal"
+                                                                    data-action="@Url.Action("Delete", "ServiceRecord", new { id = sr.Id })"
+                                                                    data-item-name="@sr.ServiceType on @sr.ServiceDate.ToString("MMM dd, yyyy")"
+                                                                    data-item-type="Service Record">
+                                                                <i class="bi bi-trash"></i>
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="empty-state py-4">
+                                    <i class="bi bi-wrench empty-state-icon"></i>
+                                    <h6 class="empty-state-title">No service records yet</h6>
+                                    <p class="empty-state-desc small">Log regular maintenance, repairs, filter changes, and technician costs.</p>
+                                    <a asp-controller="ServiceRecord" asp-action="Create" asp-route-applianceId="@app.Id" class="btn btn-primary btn-sm">
+                                        <i class="bi bi-plus-lg me-1"></i> Log Service
+                                    </a>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. DOCUMENTS & INVOICES TAB (Requirements 18, 19, 20) -->
+        <div class="tab-pane fade @(Model.ActiveTab == "documents" ? "show active" : "")" id="documents" role="tabpanel">
+            <div class="row g-4">
+                <!-- Upload Box -->
+                <div class="col-lg-4">
+                    <div class="card-modern h-100">
+                        <div class="card-header bg-white">
+                            <h6 class="mb-0 fw-bold"><i class="bi bi-cloud-arrow-up me-2 text-primary"></i>Upload Document</h6>
+                        </div>
+                        <div class="card-body">
+                            <form asp-controller="Document" asp-action="Upload" method="post" enctype="multipart/form-data">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="ApplianceId" value="@app.Id" />
+
+                                <div class="mb-3">
+                                    <label class="form-label small fw-semibold text-muted">Document Title</label>
+                                    <input type="text" name="DocumentName" class="form-control form-control-sm" placeholder="e.g. Purchase Invoice 2026" required />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label small fw-semibold text-muted">Category</label>
+                                    <select name="DocumentType" class="form-select form-select-sm" required>
+                                        <option value="Invoice">Invoice / Purchase Receipt</option>
+                                        <option value="Warranty">Warranty Certificate</option>
+                                        <option value="Service Receipt">Service Receipt / Work Order</option>
+                                        <option value="Manual">User Manual / Guide</option>
+                                        <option value="Other">Other Document</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label small fw-semibold text-muted">Choose File</label>
+                                    <input type="file" name="File" class="form-control form-control-sm" accept=".pdf,.jpg,.jpeg,.png" required />
+                                    <small class="text-muted d-block mt-1" style="font-size: 0.72rem;">Supported: PDF, JPG, PNG (Max 10 MB)</small>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary btn-sm w-100">
+                                    <i class="bi bi-upload me-1"></i> Upload Document
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Document List & Previews (Requirement 20) -->
+                <div class="col-lg-8">
+                    <div class="card-modern h-100">
+                        <div class="card-header bg-white">
+                            <h6 class="mb-0 fw-bold"><i class="bi bi-folder2-open me-2 text-primary"></i>Document Vault (@app.Documents.Count)</h6>
+                        </div>
+                        <div class="card-body p-0">
+                            @if (app.Documents.Count > 0)
+                            {
+                                <div class="list-group list-group-flush">
+                                    @foreach (var doc in app.Documents.OrderByDescending(d => d.UploadedDate))
+                                    {
+                                        <div class="list-group-item d-flex align-items-center justify-content-between p-3 border-0 border-bottom">
+                                            <div class="d-flex align-items-center gap-3">
+                                                <div class="p-2.5 bg-light rounded-3 border text-primary">
+                                                    <i class="bi @(doc.DocumentType == "Invoice" ? "bi-receipt" : (doc.DocumentType == "Warranty" ? "bi-shield-check" : "bi-file-earmark-text")) fs-3"></i>
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-0 fw-bold text-dark small">@doc.DocumentName</h6>
+                                                    <div class="text-muted small" style="font-size: 0.75rem;">
+                                                        <span class="badge bg-light text-dark border">@doc.DocumentType</span>
+                                                        &bull; Uploaded @doc.UploadedDate.ToString("MMM dd, yyyy")
+                                                        @if (doc.FileSize.HasValue)
+                                                        {
+                                                            <span>&bull; @((doc.FileSize.Value / 1024.0).ToString("N1")) KB</span>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="btn-group btn-group-sm">
+                                                <a asp-controller="Document" asp-action="Preview" asp-route-id="@doc.Id" target="_blank" class="btn btn-outline-primary" title="Preview Document">
+                                                    <i class="bi bi-eye"></i> Preview
+                                                </a>
+                                                <a asp-controller="Document" asp-action="Download" asp-route-id="@doc.Id" class="btn btn-outline-secondary" title="Download">
+                                                    <i class="bi bi-download"></i>
+                                                </a>
+                                                <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal"
+                                                        data-action="@Url.Action("Delete", "Document", new { id = doc.Id })"
+                                                        data-item-name="@doc.DocumentName"
+                                                        data-item-type="Document">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="empty-state py-4">
+                                    <i class="bi bi-file-earmark-plus empty-state-icon"></i>
+                                    <h6 class="empty-state-title">No documents uploaded</h6>
+                                    <p class="empty-state-desc small">Safely backup invoices, warranty cards, and user manuals for quick retrieval.</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. REMINDERS TAB (Requirement 21) -->
+        <div class="tab-pane fade @(Model.ActiveTab == "reminders" ? "show active" : "")" id="reminders" role="tabpanel">
+            <div class="card-modern">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 fw-bold"><i class="bi bi-alarm me-2 text-primary"></i>Maintenance Reminders &amp; Tasks</h6>
+                    <a asp-controller="Reminder" asp-action="Create" asp-route-applianceId="@app.Id" class="btn btn-primary btn-sm">
+                        <i class="bi bi-plus-lg me-1"></i> Add Reminder
+                    </a>
+                </div>
+                <div class="card-body p-0">
+                    @if (app.Reminders.Count > 0)
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light small text-uppercase">
+                                    <tr>
+                                        <th>Status</th>
+                                        <th>Title &amp; Notes</th>
+                                        <th>Category</th>
+                                        <th>Due Date</th>
+                                        <th class="text-end">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var rem in app.Reminders.OrderBy(r => r.IsCompleted).ThenBy(r => r.ReminderDate))
+                                    {
+                                        var isOverdue = !rem.IsCompleted && rem.ReminderDate < now;
+                                        <tr>
+                                            <td style="width: 50px;">
+                                                <form asp-controller="Reminder" asp-action="ToggleComplete" asp-route-id="@rem.Id" method="post" class="d-inline">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn btn-sm p-1 border-0 @(rem.IsCompleted ? "text-success" : (isOverdue ? "text-danger" : "text-secondary"))" title="Toggle Done">
+                                                        <i class="bi @(rem.IsCompleted ? "bi-check-circle-fill fs-5" : "bi-circle fs-5")"></i>
+                                                    </button>
+                                                </form>
+                                            </td>
+                                            <td>
+                                                <div class="fw-bold small @(rem.IsCompleted ? "text-decoration-line-through text-muted" : "text-dark")">
+                                                    @rem.Title
+                                                </div>
+                                                @if (!string.IsNullOrWhiteSpace(rem.Description))
+                                                {
+                                                    <small class="text-muted">@rem.Description</small>
+                                                }
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-light text-dark border">@rem.ReminderType</span>
+                                            </td>
+                                            <td>
+                                                <span class="small fw-semibold @(isOverdue ? "text-danger" : "text-dark")">
+                                                    @rem.ReminderDate.ToString("MMM dd, yyyy")
+                                                </span>
+                                                @if (isOverdue)
+                                                {
+                                                    <span class="badge bg-danger ms-1">Overdue</span>
+                                                }
+                                                else if (rem.IsCompleted)
+                                                {
+                                                    <span class="badge bg-success ms-1">Done</span>
+                                                }
+                                            </td>
+                                            <td class="text-end">
+                                                <div class="btn-group btn-group-sm">
+                                                    <a asp-controller="Reminder" asp-action="Edit" asp-route-id="@rem.Id" class="btn btn-light" title="Edit">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </a>
+                                                    <button type="button" class="btn btn-light text-danger" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal"
+                                                            data-action="@Url.Action("Delete", "Reminder", new { id = rem.Id })"
+                                                            data-item-name="@rem.Title"
+                                                            data-item-type="Reminder">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="empty-state py-4">
+                            <i class="bi bi-bell-slash empty-state-icon"></i>
+                            <h6 class="empty-state-title">No reminders scheduled</h6>
+                            <p class="empty-state-desc small">Schedule reminders for filter replacements, cleanings, and routine check-ups.</p>
+                            <a asp-controller="Reminder" asp-action="Create" asp-route-applianceId="@app.Id" class="btn btn-primary btn-sm">
+                                <i class="bi bi-plus-lg me-1"></i> Add Reminder
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. ANALYTICS TAB (Requirement 17) -->
+        <div class="tab-pane fade @(Model.ActiveTab == "analytics" ? "show active" : "")" id="analytics" role="tabpanel">
+            <div class="row g-3 mb-4">
+                <div class="col-sm-6 col-md-3">
+                    <div class="stat-card">
+                        <div>
+                            <div class="stat-label">Total Maintenance</div>
+                            <div class="stat-value text-primary">₹@Model.TotalMaintenanceCost.ToString("N0")</div>
+                        </div>
+                        <div class="stat-icon bg-primary bg-opacity-10 text-primary">
+                            <i class="bi bi-cash-stack"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-3">
+                    <div class="stat-card">
+                        <div>
+                            <div class="stat-label">Total Repairs</div>
+                            <div class="stat-value text-warning">₹@Model.TotalRepairCost.ToString("N0")</div>
+                        </div>
+                        <div class="stat-icon bg-warning bg-opacity-10 text-warning">
+                            <i class="bi bi-tools"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-3">
+                    <div class="stat-card">
+                        <div>
+                            <div class="stat-label">Avg. Service Cost</div>
+                            <div class="stat-value text-info">₹@Model.AverageServiceCost.ToString("N0")</div>
+                        </div>
+                        <div class="stat-icon bg-info bg-opacity-10 text-info">
+                            <i class="bi bi-calculator"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-3">
+                    <div class="stat-card">
+                        <div>
+                            <div class="stat-label">Service Count</div>
+                            <div class="stat-value text-dark">@Model.TotalServicesCount</div>
+                        </div>
+                        <div class="stat-icon bg-secondary bg-opacity-10 text-secondary">
+                            <i class="bi bi-wrench-adjustable"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- QR Code Modal (Requirement 28) -->
+<div class="modal fade" id="qrCodeModal" tabindex="-1" aria-labelledby="qrCodeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title" id="qrCodeModalLabel">
+                    <i class="bi bi-qr-code me-2 text-primary"></i>Appliance Tag QR
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center p-4" id="printable-qr-section">
+                <h5 class="fw-bold mb-1 text-dark">@app.Name</h5>
+                <p class="text-muted small mb-3">@app.Brand &bull; S/N: @(app.SerialNumber ?? "N/A") &bull; @app.Home.Name</p>
+
+                <div class="p-3 bg-white d-inline-block border rounded-4 shadow-sm mb-3">
+                    <img src="@Model.QrCodeBase64" alt="Appliance QR Tag" style="width: 200px; height: 200px;" />
+                </div>
+
+                <div class="small text-muted mb-2">Scan with camera to open this appliance's digital maintenance profile.</div>
+                <div class="small text-secondary fw-semibold"><code>@Model.QrCodeUrl</code></div>
+            </div>
+            <div class="modal-footer bg-light border-0">
+                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="window.print()">
+                    <i class="bi bi-printer me-1"></i> Print Tag
+                </button>
+                <a asp-action="DownloadQrCode" asp-route-id="@app.Id" class="btn btn-primary btn-sm">
+                    <i class="bi bi-download me-1"></i> Download PNG
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

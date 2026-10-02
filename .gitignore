@@ -10,19 +10,9 @@ obj/
 # ASP.NET
 appsettings.Development.json
 
-# OS
-.DS_Store
-Thumbs.db# Visual Studio
-.vs/
-*.user
-*.suo
-
-# Build output
-bin/
-obj/
-
-# ASP.NET
-appsettings.Development.json
+# User Uploads
+wwwroot/uploads/*/*
+!wwwroot/uploads/**/.gitkeep
 
 # OS
 .DS_Store

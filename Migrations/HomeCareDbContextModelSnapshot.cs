@@ -38,8 +38,19 @@ namespace HomeCare.Migrations
                     b.Property<int>("CategoryId")
                         .HasColumnType("int");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("HomeId")
                         .HasColumnType("int");
+
+                    b.Property<string>("ImagePath")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("Location")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("ModelNumber")
                         .HasMaxLength(100)
@@ -65,11 +76,23 @@ namespace HomeCare.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
 
                     b.HasIndex("HomeId");
+
+                    b.HasIndex("SerialNumber");
+
+                    b.HasIndex("Status");
 
                     b.ToTable("Appliances");
                 });
@@ -81,6 +104,14 @@ namespace HomeCare.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<string>("Icon")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -103,6 +134,10 @@ namespace HomeCare.Migrations
                     b.Property<int>("ApplianceId")
                         .HasColumnType("int");
 
+                    b.Property<string>("ContentType")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<string>("DocumentName")
                         .IsRequired()
                         .HasMaxLength(150)
@@ -116,6 +151,9 @@ namespace HomeCare.Migrations
                     b.Property<string>("FilePath")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<long?>("FileSize")
+                        .HasColumnType("bigint");
 
                     b.Property<DateTime>("UploadedDate")
                         .HasColumnType("datetime2");
@@ -139,22 +177,82 @@ namespace HomeCare.Migrations
                         .HasMaxLength(250)
                         .HasColumnType("nvarchar(250)");
 
+                    b.Property<string>("City")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("HomeType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<string>("State")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<int>("UserId")
                         .HasColumnType("int");
+
+                    b.Property<string>("ZipCode")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("UserId");
 
                     b.ToTable("Homes");
+                });
+
+            modelBuilder.Entity("HomeCare.Models.Notification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("LinkUrl")
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("NotificationType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "IsRead");
+
+                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("HomeCare.Models.Reminder", b =>
@@ -167,6 +265,9 @@ namespace HomeCare.Migrations
 
                     b.Property<int>("ApplianceId")
                         .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
                         .HasMaxLength(500)
@@ -188,9 +289,16 @@ namespace HomeCare.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
 
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ApplianceId");
+
+                    b.HasIndex("ReminderDate");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Reminders");
                 });
@@ -214,12 +322,24 @@ namespace HomeCare.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
+                    b.Property<DateTime?>("NextServiceDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Notes")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
                     b.Property<DateTime>("ServiceDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("ServiceProvider")
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("ServiceStatus")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("ServiceType")
                         .IsRequired()
@@ -233,6 +353,10 @@ namespace HomeCare.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ApplianceId");
+
+                    b.HasIndex("NextServiceDate");
+
+                    b.HasIndex("ServiceDate");
 
                     b.ToTable("ServiceRecords");
                 });
@@ -262,7 +386,19 @@ namespace HomeCare.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("PhoneNumber")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
 
                     b.ToTable("Users");
                 });
@@ -278,6 +414,14 @@ namespace HomeCare.Migrations
                     b.Property<int>("ApplianceId")
                         .HasColumnType("int");
 
+                    b.Property<string>("ContactNumber")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("CoverageDetails")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
 
@@ -292,10 +436,16 @@ namespace HomeCare.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
+                    b.Property<string>("WarrantyNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ApplianceId")
                         .IsUnique();
+
+                    b.HasIndex("EndDate");
 
                     b.ToTable("Warranties");
                 });
@@ -341,6 +491,17 @@ namespace HomeCare.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("HomeCare.Models.Notification", b =>
+                {
+                    b.HasOne("HomeCare.Models.User", "User")
+                        .WithMany("Notifications")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("HomeCare.Models.Reminder", b =>
                 {
                     b.HasOne("HomeCare.Models.Appliance", "Appliance")
@@ -349,7 +510,14 @@ namespace HomeCare.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("HomeCare.Models.User", "User")
+                        .WithMany("Reminders")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
                     b.Navigation("Appliance");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("HomeCare.Models.ServiceRecord", b =>
@@ -398,6 +566,10 @@ namespace HomeCare.Migrations
             modelBuilder.Entity("HomeCare.Models.User", b =>
                 {
                     b.Navigation("Homes");
+
+                    b.Navigation("Notifications");
+
+                    b.Navigation("Reminders");
                 });
 #pragma warning restore 612, 618
         }

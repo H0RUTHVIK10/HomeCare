@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace HomeCare.Models
 {
@@ -26,6 +26,19 @@ namespace HomeCare.Models
 
         [StringLength(500)]
         public string? Notes { get; set; }
+
+        [StringLength(50)]
+        public string Status { get; set; } = "Active"; // Active, Under Repair, Retired, Sold
+
+        [StringLength(100)]
+        public string? Location { get; set; } // e.g. Kitchen, Living Room, Laundry
+
+        [StringLength(255)]
+        public string? ImagePath { get; set; }
+
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        public DateTime? UpdatedAt { get; set; }
 
         // Foreign Keys
         public int HomeId { get; set; }

@@ -1,4 +1,4 @@
-﻿using HomeCare.Models;
+using HomeCare.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace HomeCare.Data
@@ -18,10 +18,16 @@ namespace HomeCare.Data
         public DbSet<ServiceRecord> ServiceRecords { get; set; }
         public DbSet<Document> Documents { get; set; }
         public DbSet<Reminder> Reminders { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            // User configuration & Unique Email
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.Email)
+                .IsUnique();
 
             // User → Homes
             modelBuilder.Entity<User>()
@@ -29,6 +35,20 @@ namespace HomeCare.Data
                 .WithOne(h => h.User)
                 .HasForeignKey(h => h.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // User → Notifications
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.Notifications)
+                .WithOne(n => n.User)
+                .HasForeignKey(n => n.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // User → Reminders (optional direct FK)
+            modelBuilder.Entity<Reminder>()
+                .HasOne(r => r.User)
+                .WithMany(u => u.Reminders)
+                .HasForeignKey(r => r.UserId)
+                .OnDelete(DeleteBehavior.NoAction);
 
             // Home → Appliances
             modelBuilder.Entity<Home>()
@@ -80,6 +100,40 @@ namespace HomeCare.Data
             modelBuilder.Entity<ServiceRecord>()
                 .Property(s => s.Cost)
                 .HasPrecision(18, 2);
+
+            // Performance Indexes (Requirement 39)
+            modelBuilder.Entity<Home>()
+                .HasIndex(h => h.UserId);
+
+            modelBuilder.Entity<Appliance>()
+                .HasIndex(a => a.HomeId);
+
+            modelBuilder.Entity<Appliance>()
+                .HasIndex(a => a.CategoryId);
+
+            modelBuilder.Entity<Appliance>()
+                .HasIndex(a => a.SerialNumber);
+
+            modelBuilder.Entity<Appliance>()
+                .HasIndex(a => a.Status);
+
+            modelBuilder.Entity<Warranty>()
+                .HasIndex(w => w.EndDate);
+
+            modelBuilder.Entity<ServiceRecord>()
+                .HasIndex(s => s.ServiceDate);
+
+            modelBuilder.Entity<ServiceRecord>()
+                .HasIndex(s => s.NextServiceDate);
+
+            modelBuilder.Entity<Reminder>()
+                .HasIndex(r => r.ReminderDate);
+
+            modelBuilder.Entity<Reminder>()
+                .HasIndex(r => r.UserId);
+
+            modelBuilder.Entity<Notification>()
+                .HasIndex(n => new { n.UserId, n.IsRead });
         }
     }
 }

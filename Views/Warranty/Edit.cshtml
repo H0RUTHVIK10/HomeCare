@@ -1,0 +1,83 @@
+@model HomeCare.ViewModels.WarrantyFormViewModel
+@{
+    ViewData["Title"] = $"Edit Warranty - {Model.ApplianceName}";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold mb-0 text-dark">Edit Warranty Coverage</h3>
+            <p class="text-muted small mb-0">For <strong>@Model.ApplianceName</strong> (@Model.ApplianceBrand)</p>
+        </div>
+        <a asp-controller="Appliance" asp-action="Details" asp-route-id="@Model.ApplianceId" asp-route-tab="warranty" class="btn btn-outline-secondary btn-sm px-3">
+            <i class="bi bi-arrow-left me-1"></i> Back to Appliance
+        </a>
+    </div>
+
+    <div class="card-modern p-4" style="max-width: 750px;">
+        <form asp-action="Edit" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="ApplianceId" />
+            <input type="hidden" asp-for="ApplianceName" />
+            <input type="hidden" asp-for="ApplianceBrand" />
+
+            <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="StartDate" class="form-label small fw-semibold text-muted">Warranty Start Date *</label>
+                    <input asp-for="StartDate" class="form-control" />
+                    <span asp-validation-for="StartDate" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="EndDate" class="form-label small fw-semibold text-muted">Warranty Expiration Date *</label>
+                    <input asp-for="EndDate" class="form-control" />
+                    <span asp-validation-for="EndDate" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="Provider" class="form-label small fw-semibold text-muted">Warranty Provider / Company</label>
+                    <input asp-for="Provider" class="form-control" />
+                    <span asp-validation-for="Provider" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="WarrantyNumber" class="form-label small fw-semibold text-muted">Policy / Warranty Number</label>
+                    <input asp-for="WarrantyNumber" class="form-control" />
+                    <span asp-validation-for="WarrantyNumber" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="ContactNumber" class="form-label small fw-semibold text-muted">Customer Support Helpline</label>
+                    <input asp-for="ContactNumber" class="form-control" />
+                    <span asp-validation-for="ContactNumber" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="CoverageDetails" class="form-label small fw-semibold text-muted">Coverage Details</label>
+                    <input asp-for="CoverageDetails" class="form-control" />
+                    <span asp-validation-for="CoverageDetails" class="text-danger small"></span>
+                </div>
+
+                <div class="col-12">
+                    <label asp-for="Terms" class="form-label small fw-semibold text-muted">Terms &amp; Exclusions</label>
+                    <textarea asp-for="Terms" class="form-control" rows="3"></textarea>
+                    <span asp-validation-for="Terms" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="mt-4 pt-3 border-top d-flex gap-2">
+                <button type="submit" class="btn btn-primary px-4">
+                    <i class="bi bi-save me-1"></i> Update Warranty
+                </button>
+                <a asp-controller="Appliance" asp-action="Details" asp-route-id="@Model.ApplianceId" asp-route-tab="warranty" class="btn btn-outline-secondary px-3">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

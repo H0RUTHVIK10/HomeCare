@@ -1,0 +1,344 @@
+@model HomeCare.ViewModels.AnalyticsViewModel
+@using System.Text.Json
+@{
+    ViewData["Title"] = "Maintenance & Cost Analytics";
+}
+
+<div class="container-fluid">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+        <div>
+            <div class="d-flex align-items-center gap-2">
+                <h3 class="fw-bold mb-0 text-dark">Maintenance &amp; Cost Analytics</h3>
+                <span class="badge bg-light text-primary border px-2.5 py-1.5 rounded-pill small">
+                    <i class="bi bi-geo-alt-fill me-1"></i>@Model.SelectedHomeName
+                </span>
+            </div>
+            <p class="text-muted small mb-0">Financial trends, category distribution, warranty risk, and hardware life stages</p>
+        </div>
+
+        <!-- Filter by Home -->
+        <form method="get" class="d-flex align-items-center gap-2">
+            <select name="homeId" class="form-select form-select-sm" asp-for="SelectedHomeId" asp-items="Model.HomesList" onchange="this.form.submit()">
+                <option value="">All Homes</option>
+            </select>
+        </form>
+    </div>
+
+    <!-- Analytics KPI Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-xl-3">
+            <div class="stat-card">
+                <div>
+                    <div class="stat-label">Total Recorded Spend</div>
+                    <div class="stat-value text-primary">₹@Model.TotalSpending.ToString("N0")</div>
+                    <small class="text-muted">Lifetime maintenance</small>
+                </div>
+                <div class="stat-icon bg-primary bg-opacity-10 text-primary">
+                    <i class="bi bi-cash-coin"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="stat-card">
+                <div>
+                    <div class="stat-label">Average Service Cost</div>
+                    <div class="stat-value text-success">₹@Model.AverageCostPerService.ToString("N0")</div>
+                    <small class="text-muted">Per maintenance visit</small>
+                </div>
+                <div class="stat-icon bg-success bg-opacity-10 text-success">
+                    <i class="bi bi-calculator"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="stat-card">
+                <div>
+                    <div class="stat-label">Total Services Performed</div>
+                    <div class="stat-value text-info">@Model.TotalServicesCount</div>
+                    <small class="text-muted">Maintenance records</small>
+                </div>
+                <div class="stat-icon bg-info bg-opacity-10 text-info">
+                    <i class="bi bi-wrench-adjustable"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="stat-card">
+                <div>
+                    <div class="stat-label">Repairs &amp; Breakdowns</div>
+                    <div class="stat-value text-warning">@Model.TotalRepairsCount</div>
+                    <small class="text-muted">Unscheduled fixes</small>
+                </div>
+                <div class="stat-icon bg-warning bg-opacity-10 text-warning">
+                    <i class="bi bi-tools"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row 1: Monthly Cost Trend & Category Breakdown -->
+    <div class="row g-4 mb-4">
+        <!-- Monthly Spending Trend (Line/Bar) -->
+        <div class="col-lg-8">
+            <div class="card-modern h-100">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 fw-bold"><i class="bi bi-graph-up me-2 text-primary"></i>Monthly Maintenance Expenses (Last 12 Months)</h6>
+                    <span class="badge bg-light text-muted border">INR (₹)</span>
+                </div>
+                <div class="card-body">
+                    <div style="height: 300px;">
+                        <canvas id="monthlyCostChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category Distribution (Doughnut) -->
+        <div class="col-lg-4">
+            <div class="card-modern h-100">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0 fw-bold"><i class="bi bi-pie-chart-fill me-2 text-primary"></i>Appliances by Category</h6>
+                </div>
+                <div class="card-body">
+                    <div style="height: 300px;">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row 2: Top Appliance Spending & Warranty Status -->
+    <div class="row g-4 mb-4">
+        <!-- Spending by Appliance (Horizontal Bar) -->
+        <div class="col-lg-6">
+            <div class="card-modern h-100">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0 fw-bold"><i class="bi bi-bar-chart-steps me-2 text-primary"></i>Highest Maintenance Spending by Appliance</h6>
+                </div>
+                <div class="card-body">
+                    @if (Model.ApplianceCostLabels.Count > 0)
+                    {
+                        <div style="height: 280px;">
+                            <canvas id="applianceCostChart"></canvas>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="empty-state py-5">
+                            <i class="bi bi-receipt empty-state-icon"></i>
+                            <h6 class="empty-state-title">No service costs recorded</h6>
+                            <p class="empty-state-desc small">Log technician service expenses to see comparative cost rankings.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Warranty Coverage Status (Doughnut) -->
+        <div class="col-lg-3">
+            <div class="card-modern h-100">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0 fw-bold"><i class="bi bi-shield-shaded me-2 text-success"></i>Warranty Status</h6>
+                </div>
+                <div class="card-body">
+                    <div style="height: 280px;">
+                        <canvas id="warrantyStatusChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Appliance Age Distribution (Bar) -->
+        <div class="col-lg-3">
+            <div class="card-modern h-100">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0 fw-bold"><i class="bi bi-hourglass-split me-2 text-info"></i>Hardware Age Range</h6>
+                </div>
+                <div class="card-body">
+                    <div style="height: 280px;">
+                        <canvas id="ageDistributionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Palette Colors
+            const primaryColor = '#2563eb';
+            const successColor = '#10b981';
+            const warningColor = '#f59e0b';
+            const dangerColor = '#ef4444';
+            const infoColor = '#06b6d4';
+            const purpleColor = '#8b5cf6';
+            const secondaryColor = '#94a3b8';
+
+            // 1. Monthly Cost Chart
+            const monthlyLabels = @Html.Raw(JsonSerializer.Serialize(Model.MonthlyCostLabels));
+            const monthlyValues = @Html.Raw(JsonSerializer.Serialize(Model.MonthlyCostValues));
+
+            const monthlyCtx = document.getElementById('monthlyCostChart')?.getContext('2d');
+            if (monthlyCtx) {
+                new Chart(monthlyCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: monthlyLabels,
+                        datasets: [{
+                            label: 'Maintenance Spending (₹)',
+                            data: monthlyValues,
+                            backgroundColor: 'rgba(37, 99, 235, 0.75)',
+                            borderColor: primaryColor,
+                            borderWidth: 1,
+                            borderRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) { return '₹' + value; }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // 2. Category Distribution Chart
+            const catLabels = @Html.Raw(JsonSerializer.Serialize(Model.CategoryLabels));
+            const catCounts = @Html.Raw(JsonSerializer.Serialize(Model.CategoryCounts));
+
+            const catCtx = document.getElementById('categoryChart')?.getContext('2d');
+            if (catCtx && catLabels.length > 0) {
+                new Chart(catCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: catLabels,
+                        datasets: [{
+                            data: catCounts,
+                            backgroundColor: [primaryColor, successColor, warningColor, infoColor, purpleColor, dangerColor, secondaryColor]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }
+                        }
+                    }
+                });
+            }
+
+            // 3. Appliance Cost Chart
+            const appCostLabels = @Html.Raw(JsonSerializer.Serialize(Model.ApplianceCostLabels));
+            const appCostValues = @Html.Raw(JsonSerializer.Serialize(Model.ApplianceCostValues));
+
+            const appCostCtx = document.getElementById('applianceCostChart')?.getContext('2d');
+            if (appCostCtx && appCostLabels.length > 0) {
+                new Chart(appCostCtx, {
+                    type: 'bar',
+                    indexAxis: 'y',
+                    data: {
+                        labels: appCostLabels,
+                        datasets: [{
+                            label: 'Total Cost (₹)',
+                            data: appCostValues,
+                            backgroundColor: 'rgba(16, 185, 129, 0.75)',
+                            borderColor: successColor,
+                            borderWidth: 1,
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) { return '₹' + value; }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // 4. Warranty Status Chart
+            const warrantyLabels = @Html.Raw(JsonSerializer.Serialize(Model.WarrantyStatusLabels));
+            const warrantyCounts = @Html.Raw(JsonSerializer.Serialize(Model.WarrantyStatusCounts));
+
+            const warrantyCtx = document.getElementById('warrantyStatusChart')?.getContext('2d');
+            if (warrantyCtx) {
+                new Chart(warrantyCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: warrantyLabels,
+                        datasets: [{
+                            data: warrantyCounts,
+                            backgroundColor: [successColor, warningColor, dangerColor, secondaryColor]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } }
+                        }
+                    }
+                });
+            }
+
+            // 5. Age Distribution Chart
+            const ageLabels = @Html.Raw(JsonSerializer.Serialize(Model.AgeLabels));
+            const ageCounts = @Html.Raw(JsonSerializer.Serialize(Model.AgeCounts));
+
+            const ageCtx = document.getElementById('ageDistributionChart')?.getContext('2d');
+            if (ageCtx) {
+                new Chart(ageCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ageLabels,
+                        datasets: [{
+                            label: 'Count',
+                            data: ageCounts,
+                            backgroundColor: 'rgba(6, 182, 212, 0.75)',
+                            borderColor: infoColor,
+                            borderWidth: 1,
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { stepSize: 1 }
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+}

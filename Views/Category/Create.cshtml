@@ -1,0 +1,51 @@
+@model HomeCare.Models.Category
+@{
+    ViewData["Title"] = "Add Category";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold mb-0 text-dark">Add New Category</h3>
+            <p class="text-muted small mb-0">Create a classification for appliances</p>
+        </div>
+        <a asp-action="Index" class="btn btn-outline-secondary btn-sm px-3">
+            <i class="bi bi-arrow-left me-1"></i> Back to Categories
+        </a>
+    </div>
+
+    <div class="card-modern p-4" style="max-width: 600px;">
+        <form asp-action="Create" method="post">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+
+            <div class="mb-3">
+                <label asp-for="Name" class="form-label small fw-semibold text-muted">Category Name *</label>
+                <input asp-for="Name" class="form-control" placeholder="e.g. Smart Lighting, Water Systems" autofocus />
+                <span asp-validation-for="Name" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Icon" class="form-label small fw-semibold text-muted">Bootstrap Icon Class</label>
+                <input asp-for="Icon" class="form-control" placeholder="e.g. bi-plug, bi-snow, bi-tv, bi-water" />
+                <small class="text-muted" style="font-size: 0.72rem;">Available icons: bi-snow, bi-tv, bi-water, bi-cup-hot, bi-shield-check, bi-fan, bi-lamp</small>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Description" class="form-label small fw-semibold text-muted">Description</label>
+                <textarea asp-for="Description" class="form-control" rows="3" placeholder="Types of household devices in this category..."></textarea>
+            </div>
+
+            <div class="mt-4 pt-3 border-top d-flex gap-2">
+                <button type="submit" class="btn btn-primary px-4">
+                    <i class="bi bi-check-lg me-1"></i> Save Category
+                </button>
+                <a asp-action="Index" class="btn btn-outline-secondary px-3">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

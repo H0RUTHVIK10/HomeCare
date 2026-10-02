@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace HomeCare.Models
 {
@@ -12,10 +12,15 @@ namespace HomeCare.Models
 
         [Required]
         [StringLength(50)]
-        public string DocumentType { get; set; } = string.Empty;
+        public string DocumentType { get; set; } = string.Empty; // Invoice, Warranty, Service Receipt, Manual, Other
 
         [Required]
         public string FilePath { get; set; } = string.Empty;
+
+        public long? FileSize { get; set; }
+
+        [StringLength(100)]
+        public string? ContentType { get; set; }
 
         public DateTime UploadedDate { get; set; } = DateTime.UtcNow;
 

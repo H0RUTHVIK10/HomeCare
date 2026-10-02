@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace HomeCare.Models
 {
@@ -9,6 +9,12 @@ namespace HomeCare.Models
         [Required]
         [StringLength(100)]
         public string Name { get; set; } = string.Empty;
+
+        [StringLength(50)]
+        public string? Icon { get; set; } // e.g. bi-snow, bi-tv, bi-water, bi-fan
+
+        [StringLength(250)]
+        public string? Description { get; set; }
 
         // Relationship
         public ICollection<Appliance> Appliances { get; set; } = new List<Appliance>();

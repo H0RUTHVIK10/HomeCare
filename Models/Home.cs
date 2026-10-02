@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace HomeCare.Models
 {
@@ -12,6 +12,18 @@ namespace HomeCare.Models
 
         [StringLength(250)]
         public string? Address { get; set; }
+
+        [StringLength(100)]
+        public string? City { get; set; }
+
+        [StringLength(100)]
+        public string? State { get; set; }
+
+        [StringLength(20)]
+        public string? ZipCode { get; set; }
+
+        [StringLength(50)]
+        public string HomeType { get; set; } = "Primary Residence"; // Primary Residence, Rental Apartment, Vacation Home, Office
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
